@@ -1,5 +1,6 @@
 var express = require('express');
 var nodemailer = require("nodemailer");
+var smtpTransport = require('nodemailer-smtp-transport');
 var bodyParser = require('body-parser');
 var app = express();
 
@@ -17,27 +18,38 @@ app.post('/',function(req, res){
   var sendEmail = '';
   var password = '';
   console.log(req.body);
-  var smtpTransport = nodemailer.createTransport("SMTP",{
-        service: "Gmail",
-          auth: {
-              user: sendEmail,
-              pass: password
-        }
-  });
+  // var smtpTransport = nodemailer.createTransport("SMTP",{
+  //   host: 'smtp.gmail.com',
+  //   port: 587,
+  //   secure: true,
+  //       service: "Gmail",
+  //         auth: {
+  //             user: sendEmail,
+  //             pass: password
+  //       }
+  // });
+  var transporter = nodemailer.createTransport(smtpTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+      auth: {
+          user: sendEmail,
+          pass: password
+    }
+}));
   var mailOptions = {
-      from: "", // sender address
+      from: "Junior Webmaster Camp <"+sendEmail+">",// sender address
       to: req.body.email, // list of receivers
-      subject: "", // Subject line
-      html: "" // html body
+      subject: "ทดสอบบบบบบบบ", // Subject line
+      html: "<h1>test</h1>" // html body
   }
 
-  smtpTransport.sendMail(mailOptions, function(error, response){
+  transporter.sendMail(mailOptions, function(error, response){
       if(error){
           console.log(error);
       }else{
           console.log("Message sent: " + response.message);
       }
-      smtpTransport.close();
   });
   res.render('index');
 });
