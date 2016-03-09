@@ -1,6 +1,6 @@
 var express = require('express');
+var xoauth2 = require("xoauth2");
 var nodemailer = require("nodemailer");
-var smtpTransport = require('nodemailer-smtp-transport');
 var bodyParser = require('body-parser');
 var app = express();
 
@@ -17,40 +17,34 @@ app.get('/',function(req, res){
 app.post('/',function(req, res){
   var sendEmail = '';
   var password = '';
-  console.log(req.body);
-  // var smtpTransport = nodemailer.createTransport("SMTP",{
-  //   host: 'smtp.gmail.com',
-  //   port: 587,
-  //   secure: true,
-  //       service: "Gmail",
-  //         auth: {
-  //             user: sendEmail,
-  //             pass: password
-  //       }
-  // });
-  var transporter = nodemailer.createTransport(smtpTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-      auth: {
-          user: sendEmail,
-          pass: password
+  var xoauth={
+    service: 'gmail',
+    auth: {
+        xoauth2: xoauth2.createXOAuth2Generator({
+            user: sendEmail,
+            clientId: '',
+            clientSecret: '',
+	          refreshToken: '',
+            accessToken: ''
+        })
     }
-}));
-  var mailOptions = {
-      from: "Junior Webmaster Camp <"+sendEmail+">",// sender address
-      to: req.body.email, // list of receivers
-      subject: "ทดสอบบบบบบบบ", // Subject line
-      html: "<h1>test</h1>" // html body
-  }
-
-  transporter.sendMail(mailOptions, function(error, response){
-      if(error){
-          console.log(error);
-      }else{
-          console.log("Message sent: " + response.message);
-      }
-  });
+}
+var transporter = nodemailer.createTransport(xoauth);
+var mailOptions = {
+    from: sendEmail, // sender address
+    to: req.body.email, // list of receivers
+    subject: 'Hello ✔', // Subject line
+    text: 'Hello world 🐴', // plaintext body
+    html: '<b>Hello world 🐴</b>' // html body
+};
+transporter.sendMail(mailOptions, function(err){
+    if(err){
+      console.log(err);
+    }
+    else{
+      console.log("SUCCESS!!!!!!!!");
+    }
+});
   res.render('index');
 });
 
